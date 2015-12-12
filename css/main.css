@@ -4,31 +4,42 @@ body {
     background-repeat: repeat;
 }
 
+.hide {
+    display: none;
+}
+
 .input-url {
-    width: 250px;
+    width: 280px;
 }
 
 .input-width {
     width: 50px;
 }
 
+.option-group {
+    margin: 5px 5px 15px 5px;
+}
 .option {
     display: inline-block;
     margin-right: 4px;
 }
 
 .settings {
+    cursor: pointer;
+    width: 24px;
+}
+
+.settings_container {
     position: absolute;
-    opacity: 0.6;
+    opacity: 0.4;
     bottom: 0;
     left: 0;
     background: #FFF;
     border-radius: 0 20px 0 0;
     padding: 10px;
-    min-width: 300px;
-    min-height: 25px;
+    width: 32px;
 }
 
 .slider-container {
-    width: 100px;
+    width: 180px;
 }

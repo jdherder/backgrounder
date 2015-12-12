@@ -9,7 +9,7 @@
         <title>Backgrounder</title>
 
         <link rel="stylesheet" href="css/reset.css">
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/black-tie/jquery-ui.css">
         <link rel="stylesheet" href="css/main.css">
 
         <!--[if lt IE 9]>
@@ -19,41 +19,64 @@
 
     <body>
 
-        <div class="settings">
+        <div id="settings-dialog" class="hide">
             <div>
-                <div class="option">url:</div>
-                <div class="option"><input type="text" id="url" class="input-url" value="http://i.giphy.com/zqPm7bAHRu8Xm.gif" /></div>
-                <div class="option">width:</div>
-                <div class="option slider-container"><div id="slider"></div></div>
-                <div class="option"><span id="amount-display"></span></div>
-                <div class="option"><button id="go">GO!</button></div>
+                <div class="option-group">
+                    <div class="option">url:</div>
+                    <div class="option"><input type="text" id="url" class="input-url" value="http://i.giphy.com/zqPm7bAHRu8Xm.gif" /></div>
+                </div>
+                <div class="option-group">
+                    <div class="option">width:</div>
+                    <div class="option slider-container"><div id="slider"></div></div>
+                    <div class="option"><span id="amount-display"></span></div>
+                </div>
             </div>
         </div>
 
+        <div class="settings_container">
+            <img src="images/gear39.png" class="settings" />
+        </div>
+
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-        <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
         <script>
-            $('#go').click(function() {
-                var url = $('#url').val();
-                var width = $('#width').val();
-
-                $('body').css("background-image", "url("+url+")");
-                $('body').css("background-size", $( "#slider" ).slider( "value" )+'px');
+            $("#settings-dialog").dialog({
+                autoOpen: false,
+                maxWidth:400,
+                maxHeight: 400,
+                width: 400,
+                height: 400,
+                modal: true,
+                buttons: {
+                    "Done": function() {
+                        $(this).dialog("close");
+                    }
+                }
             });
 
-            $( "#slider" ).slider({
+            $('.settings').click(function() {
+                $('#settings-dialog').dialog('open');
+            });
+
+            $('#url').blur(function() {
+                var url = $('#url').val();
+                $('body').css('background-image', 'url(' + url + ')');
+            });
+
+            $('#slider').slider({
                 value:300,
                 min: 0,
                 max: 1000,
                 step: 10,
                 slide: function( event, ui ) {
-                    $( "#width" ).val( ui.value );
-                    $( "#amount-display" ).html( $( "#slider" ).slider( "value" ) + "px" );
-                    $('body').css("background-size", $( "#slider" ).slider( "value" )+'px');
+                    $('#width').val( ui.value );
+                    $('#amount-display').html( $('#slider').slider('value') + 'px');
+                    $('body').css("background-size", $('#slider').slider( "value" ) + 'px');
                 }
             });
-            $( "#amount-display" ).html( $( "#slider" ).slider( "value" ) + "px" );
+
+            $('#amount-display').html( $('#slider').slider('value') + 'px');
         </script>
 
     </body>
