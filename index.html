@@ -9,7 +9,7 @@
         <title>Backgrounder</title>
 
         <link rel="stylesheet" href="css/reset.css">
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/black-tie/jquery-ui.css">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <link rel="stylesheet" href="css/main.css">
 
         <!--[if lt IE 9]>
@@ -18,6 +18,10 @@
     </head>
 
     <body>
+
+        <div class="img-row clearfix">
+            <img class="base-img img-repeat" src="images/default.gif" />
+        </div>
 
         <div id="settings-dialog" class="hide">
             <div>
@@ -30,6 +34,7 @@
                     <div class="option slider-container"><div id="slider"></div></div>
                     <div class="option"><span id="amount-display"></span></div>
                 </div>
+                <div>imgPerRow: <span id="imgPerRow"></span> | rowsPerPage: <span id="rowsPerPage"></span></div>
             </div>
         </div>
 
@@ -41,9 +46,31 @@
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
         <script>
+            localStorage.setItem("imgPerRowSave",0);
+            localStorage.setItem("rowsPerPageSave",0);
+
+            $(window).resize(function() {
+                var windowWidth = $(window).width();
+                var windowHeight = $(window).height();
+                var imgWidth = $('.base-img').width() || 1;
+                var imgHeight = $('.base-img').height() || 1;
+
+                var imgPerRow = Math.ceil(windowWidth / imgWidth);
+                var rowsPerPage = Math.ceil(windowHeight / imgHeight);
+
+                $('.base-img').hide();
+
+                attemptRender(imgPerRow, rowsPerPage);
+
+                $('#imgPerRow').html(imgPerRow);
+                $('#rowsPerPage').html(rowsPerPage);
+
+            });
+            $(window).resize();
+
             $("#settings-dialog").dialog({
                 autoOpen: false,
-                maxWidth:400,
+                maxWidth: 400,
                 maxHeight: 400,
                 width: 400,
                 height: 400,
@@ -61,22 +88,63 @@
 
             $('#url').blur(function() {
                 var url = $('#url').val();
-                $('body').css('background-image', 'url(' + url + ')');
+                //$('body').css('background-image', 'url(' + url + ')');
+                $('.img-repeat').each(function(index) {
+                    $(this).attr("src",url);
+                });
             });
 
             $('#slider').slider({
-                value:300,
+                value: 300,
                 min: 0,
                 max: 1000,
                 step: 10,
                 slide: function( event, ui ) {
                     $('#width').val( ui.value );
                     $('#amount-display').html( $('#slider').slider('value') + 'px');
-                    $('body').css("background-size", $('#slider').slider( "value" ) + 'px');
+                    //$('body').css("background-size", $('#slider').slider( "value" ) + 'px');
+
+                    $(window).resize();
+                    $('.img-repeat').each(function(index) {
+                        $(this).attr("width", $('#slider').slider( "value" ) + 'px');
+                    });
                 }
             });
 
             $('#amount-display').html( $('#slider').slider('value') + 'px');
+
+            function attemptRender(imgPerRow, rowsPerPage) {
+
+                var imgPerRowSave = localStorage.getItem("imgPerRowSave");
+                var rowsPerPageSave = localStorage.getItem("rowsPerPageSave");
+
+                console.log('imgPerRow: ', imgPerRow, ' imgPerRowSave: ', imgPerRowSave);
+                console.log('rowsPerPage: ', rowsPerPage, ' rowsPerPageSave: ', rowsPerPageSave);
+
+                if (imgPerRow == imgPerRowSave && rowsPerPage == rowsPerPageSave) {
+                    return;
+                }
+
+                var url = $('#url').val();
+
+                $('.remove-handle').remove();
+
+                for (var i = 0; i < imgPerRow; i++) {
+                    var imgClone = '<img src="' + url + '" class="img-repeat remove-handle" />';
+                    $('.img-row').append(imgClone);
+                    console.log('imgPerRow: ', imgPerRow);
+                }
+                for (var j = 0; j < rowsPerPage; j++) {
+                    var cloned = $('.img-row').first().clone();
+                    cloned.addClass('remove-handle');
+                    cloned.appendTo('body'); //this is an exponential copy
+                    console.log('rowsPerPage: ', rowsPerPage);
+                }
+
+                localStorage.setItem("imgPerRowSave",imgPerRow);
+                localStorage.setItem("rowsPerPageSave",rowsPerPage);
+            }
+
         </script>
 
     </body>
