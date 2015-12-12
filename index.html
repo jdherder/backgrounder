@@ -1,0 +1,60 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Backgrounder</title>
+
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="settings">
+            <div>
+                <div class="option">url:</div>
+                <div class="option"><input type="text" id="url" class="input-url" value="http://i.giphy.com/zqPm7bAHRu8Xm.gif" /></div>
+                <div class="option">width:</div>
+                <div class="option slider-container"><div id="slider"></div></div>
+                <div class="option"><span id="amount-display"></span></div>
+                <div class="option"><button id="go">GO!</button></div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+
+        <script>
+            $('#go').click(function() {
+                var url = $('#url').val();
+                var width = $('#width').val();
+
+                $('body').css("background-image", "url("+url+")");
+                $('body').css("background-size", $( "#slider" ).slider( "value" )+'px');
+            });
+
+            $( "#slider" ).slider({
+                value:300,
+                min: 0,
+                max: 1000,
+                step: 10,
+                slide: function( event, ui ) {
+                    $( "#width" ).val( ui.value );
+                    $( "#amount-display" ).html( $( "#slider" ).slider( "value" ) + "px" );
+                    $('body').css("background-size", $( "#slider" ).slider( "value" )+'px');
+                }
+            });
+            $( "#amount-display" ).html( $( "#slider" ).slider( "value" ) + "px" );
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,34 @@
+body {
+    background-image: url("http://i.giphy.com/zqPm7bAHRu8Xm.gif");
+    background-size: 300px;
+    background-repeat: repeat;
+}
+
+.input-url {
+    width: 250px;
+}
+
+.input-width {
+    width: 50px;
+}
+
+.option {
+    display: inline-block;
+    margin-right: 4px;
+}
+
+.settings {
+    position: absolute;
+    opacity: 0.6;
+    bottom: 0;
+    left: 0;
+    background: #FFF;
+    border-radius: 0 20px 0 0;
+    padding: 10px;
+    min-width: 300px;
+    min-height: 25px;
+}
+
+.slider-container {
+    width: 100px;
+}
