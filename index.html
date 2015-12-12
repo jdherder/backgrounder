@@ -20,21 +20,27 @@
     <body>
 
         <div class="img-row clearfix">
-            <img class="base-img img-repeat" src="images/default.gif" />
+            <img class="base-img img-repeat" src="http://aislian.org/tiling.gif" />
         </div>
 
         <div id="settings-dialog" class="hide">
             <div>
                 <div class="option-group">
                     <div class="option">url:</div>
-                    <div class="option"><input type="text" id="url" class="input-url" value="http://i.giphy.com/zqPm7bAHRu8Xm.gif" /></div>
+                    <div class="option"><input type="text" id="url" class="input-url" value="http://aislian.org/tiling.gif" /></div>
                 </div>
                 <div class="option-group">
                     <div class="option">width:</div>
                     <div class="option slider-container"><div id="slider"></div></div>
                     <div class="option"><span id="amount-display"></span></div>
                 </div>
-                <div>imgPerRow: <span id="imgPerRow"></span> | rowsPerPage: <span id="rowsPerPage"></span></div>
+                <div id="sync-options" class="option-group">
+                    <div class="option">Sync:</div>
+                    <div class="option"><button id="desync">Wave</button> &nbsp; <button id="sync">Re-Sync</button></div>
+                </div>
+                <div id="message" class="option-group hide">
+                    <p>Loading images...</p>
+                </div>
             </div>
         </div>
 
@@ -49,24 +55,11 @@
             localStorage.setItem("imgPerRowSave",0);
             localStorage.setItem("rowsPerPageSave",0);
 
+            attemptRender();
+
             $(window).resize(function() {
-                var windowWidth = $(window).width();
-                var windowHeight = $(window).height();
-                var imgWidth = $('.base-img').width() || 1;
-                var imgHeight = $('.base-img').height() || 1;
-
-                var imgPerRow = Math.ceil(windowWidth / imgWidth);
-                var rowsPerPage = Math.ceil(windowHeight / imgHeight);
-
-                $('.base-img').hide();
-
-                attemptRender(imgPerRow, rowsPerPage);
-
-                $('#imgPerRow').html(imgPerRow);
-                $('#rowsPerPage').html(rowsPerPage);
-
+                attemptRender();
             });
-            $(window).resize();
 
             $("#settings-dialog").dialog({
                 autoOpen: false,
@@ -88,7 +81,6 @@
 
             $('#url').blur(function() {
                 var url = $('#url').val();
-                //$('body').css('background-image', 'url(' + url + ')');
                 $('.img-repeat').each(function(index) {
                     $(this).attr("src",url);
                 });
@@ -96,53 +88,139 @@
 
             $('#slider').slider({
                 value: 300,
-                min: 0,
+                min: 35,
                 max: 1000,
                 step: 10,
                 slide: function( event, ui ) {
+                    var setWidth = $('#slider').slider( "value" );
+
                     $('#width').val( ui.value );
                     $('#amount-display').html( $('#slider').slider('value') + 'px');
-                    //$('body').css("background-size", $('#slider').slider( "value" ) + 'px');
 
-                    $(window).resize();
+                    if (setWidth <= 300) {
+                        $('#sync-options').hide();
+                    } else {
+                        $('#sync-options').show();
+                    }
+
                     $('.img-repeat').each(function(index) {
-                        $(this).attr("width", $('#slider').slider( "value" ) + 'px');
+                        $(this).width(setWidth);
                     });
+
+                    attemptRender();
                 }
             });
-
             $('#amount-display').html( $('#slider').slider('value') + 'px');
 
-            function attemptRender(imgPerRow, rowsPerPage) {
+            $('#desync').click(function() {
+
+                $('#message').show();
+                var imgPerRowSave = localStorage.getItem("imgPerRowSave");
+                var rowsPerPageSave = localStorage.getItem("rowsPerPageSave");
+                var imgsToLoad = imgPerRowSave * rowsPerPageSave;
+                console.log(imgsToLoad);
+
+                var imgsArr = [];
+                for (var i = 0; i < imgsToLoad; i++) {
+                    imgsArr[i] = newSrc = $('#url').val() + '?' + Math.random();
+                }
+                preloadImages(imgsArr);
+            });
+
+            $('#sync').click(function() {
+                var imgs = $('.img-repeat');
+                imgs.attr('src', imgs.attr('src') + '?' + Math.random());
+            });
+
+            function attemptRender() {
+
+                var windowWidth = $(window).width();
+                var windowHeight = $(window).height();
+
+                var firstImg = $('.img-repeat').first();
+                var imgWidth = firstImg.width() || 100;
+                var imgHeight = firstImg.height() || 100;
+
+                var imgPerRow = Math.ceil(windowWidth / imgWidth);
+                var rowsPerPage = Math.ceil(windowHeight / imgHeight);
 
                 var imgPerRowSave = localStorage.getItem("imgPerRowSave");
                 var rowsPerPageSave = localStorage.getItem("rowsPerPageSave");
-
-                console.log('imgPerRow: ', imgPerRow, ' imgPerRowSave: ', imgPerRowSave);
-                console.log('rowsPerPage: ', rowsPerPage, ' rowsPerPageSave: ', rowsPerPageSave);
 
                 if (imgPerRow == imgPerRowSave && rowsPerPage == rowsPerPageSave) {
                     return;
                 }
 
                 var url = $('#url').val();
+                var imgId = 1;
 
+                $('.img-row').empty();
                 $('.remove-handle').remove();
 
-                for (var i = 0; i < imgPerRow; i++) {
-                    var imgClone = '<img src="' + url + '" class="img-repeat remove-handle" />';
-                    $('.img-row').append(imgClone);
-                    console.log('imgPerRow: ', imgPerRow);
-                }
                 for (var j = 0; j < rowsPerPage; j++) {
-                    var cloned = $('.img-row').first().clone();
-                    cloned.addClass('remove-handle');
-                    cloned.appendTo('body'); //this is an exponential copy
-                    console.log('rowsPerPage: ', rowsPerPage);
+                    var rowClone = $('<div class="img-row"></div>');
+
+                    for (var i = 0; i < imgPerRow; i++) {
+                        var imgClone = $('<img class="img-repeat remove-handle">');
+                        imgClone.attr('src', url);
+                        imgClone.attr('id', imgId);
+                        imgClone.width(imgWidth);
+
+                        rowClone.append(imgClone);
+
+                        imgId++;
+                    }
+
+                    rowClone.addClass('remove-handle');
+                    rowClone.appendTo('body');
                 }
 
                 localStorage.setItem("imgPerRowSave",imgPerRow);
                 localStorage.setItem("rowsPerPageSave",rowsPerPage);
+            }
+
+            function preloadImages(array) {
+                if (!preloadImages.list) {
+                    preloadImages.list = [];
+                }
+                var list = preloadImages.list;
+                for (var i = 0; i < array.length; i++) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var index = list.indexOf(this);
+                        if (index !== -1) {
+                            // remove image from the array once it's loaded for memory consumption reasons
+                            list.splice(index, 1);
+                            if (preloadImages.list.length === 0) {
+                                imgSwap(array);
+                            }
+                        }
+                    };
+                    list.push(img);
+                    img.src = array[i];
+                }
+            }
+
+            function imgSwap(array) {
+                var speed = 100;
+                var timer = setInterval(reloadImg, speed);
+                var imgs =  $('.img-repeat');
+                var length = imgs.length;
+                var index = 0;
+
+                function reloadImg() {
+                    var img = imgs.eq(index);
+                    var imgClone = img.clone();
+                    imgClone.attr('src', array[index]);
+                    img.after(imgClone);
+                    img.remove();
+                    index++;
+
+                    if (index >= length) {
+                        clearInterval(timer);
+                        $('#message').hide();
+                    }
+                }
             }
 
         </script>
